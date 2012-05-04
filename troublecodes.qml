@@ -38,12 +38,36 @@ Rectangle {
 
 
         Rectangle {
+            width: parent.width / 3
+            height: childrenRect.height
+            anchors.horizontalCenter: parent.horizontalCenter
+            visible: troubleCodeStream.value.length
+            color: "#cc4444"
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.00;
+                    color: "#cc4444";
+                }
+                GradientStop {
+                    position: 1.00;
+                    color: "#000000";
+                }
+            }
 
             Column {
                 width: parent.width
+                spacing: 10
+
+                Text {
+                    text: "Check engine:"
+                    color: "white"
+                    font.pixelSize: 20
+                }
+
                 Repeater {
                     //model: troubleCodeStream.value
                     model: ["p1001","0303","34343"]
+
                     delegate: Text {
                         text: modelData
                         font.pixelSize: 20
