@@ -267,7 +267,10 @@ Rectangle {
             title.text: "Check engine"
             title.color: "red"
             width: 200
-           // visible: troubleCodeStream.value.count
+            //visible: troubleCodeStream.value.count
+            onClicked: {
+                topPageLoader.sourceComponent = troubleCodesComponent
+            }
         }
     }
 
