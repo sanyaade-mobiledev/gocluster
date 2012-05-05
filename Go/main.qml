@@ -2,6 +2,7 @@
 import QtQuick 1.1
 import nobdy 0.1
 import QtMobility.location 1.2
+import Qt.labs.particles 1.0
 
 Rectangle {
     id: container
@@ -50,11 +51,23 @@ Rectangle {
 
     Rectangle {
         id: mapScreen
-        width: 1200
-        height: 640
+        width: container.width
+        height: container.height
         color: "black"
-
         anchors.right: guageScreen.left
+
+        LandmarkModel {
+            id: gasStations
+            importFile: "../POI/california_Automotive.gpx"
+            limit: 100
+            autoUpdate: true
+            onLandmarksChanged: {
+                // Direct list access
+                for (var index = 0; index < landmarks.length; index++)  {
+                    console.log("Index, name:" + index + " , " + landmarks[index].name);
+                }
+            }
+        }
 
         Map {
             id: map
@@ -63,14 +76,52 @@ Rectangle {
             size.width: parent.width
             size.height: parent.height
             zoomLevel: 20
-            center: Coordinate { latitude: latitudeStream.value; longitude: longitudeStream.value }
+            center: Coordinate {
+
+                latitude: latitudeStream.value;
+                longitude: longitudeStream.value
+                Behavior on latitude {
+                    NumberAnimation { duration: 1000 }
+                }
+                Behavior on longitude {
+                    NumberAnimation { duration: 1000 }
+                }
+            }
 
             MapCircle {
-                     id: myPosition
-                     color: "blue"
-                     radius: 2
-                     center: Coordinate { latitude: latitudeStream.value; longitude: longitudeStream.value }
-                 }
+                id: myPositionMarker
+                color: "blue"
+                radius: 2
+                center: Coordinate {
+
+                    latitude: latitudeStream.value;
+                    longitude: longitudeStream.value
+                    Behavior on latitude {
+                        NumberAnimation { duration: 1000 }
+                    }
+                    Behavior on longitude {
+                        NumberAnimation { duration: 1000 }
+                    }
+                }
+            }
+
+            MapObjectView {
+                model: gasStations
+                delegate: MapCircle {
+                    radius: landmark.radius
+                    color: "orange"
+                    center: landmark.coordinate
+                    Component.onCompleted: {
+                        console.log("Drawing map circle for "+landmark.name)
+                    }
+                }
+            }
+        }
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: 80
+            text: velocity.value + velocityUnits.text
         }
 
         Column {
@@ -111,12 +162,29 @@ Rectangle {
 
     Rectangle {
         id: guageScreen
-        width: 1200
-        height: 640
+        width: container.width
+        height: container.height
         color: "black"
 
         Behavior on x {
             NumberAnimation { duration: 500 }
+        }
+
+        Particles {
+            y: 0
+            width: parent.width
+            height: parent.height
+            source: "assets/star.png"
+            lifeSpan: 15000
+            count: 300 * (velocity.value / 250)
+            angle: heading
+            angleDeviation: 36
+            velocity: 100 * (rpmValue / 10000)
+            velocityDeviation: 10
+            ParticleMotionWander {
+                xvariance: 30
+                pace: 100
+            }
         }
 
         Image {
@@ -245,9 +313,13 @@ Rectangle {
                         opacity: 0.75
                         color: "black"
                         radius: 1
-
                     }
                 }
+            }
+
+            onClicked: {
+                modalSurface.item = settingsComponent.createObject(modalSurface);
+                modalSurface.visible = true
             }
         }
 
@@ -264,30 +336,96 @@ Rectangle {
 
         Button {
             id: checkEngine
+            anchors.right: mainGaugeBackground.left
+            y: 100
             title.text: "Check engine"
             title.color: "red"
             width: 200
             //visible: troubleCodeStream.value.count
             onClicked: {
-                topPageLoader.sourceComponent = troubleCodesComponent
+                modalSurface.item = troubleCodesComponent.createObject(modalSurface);
+                modalSurface.visible = true
             }
         }
     }
 
-    Loader {
-        id: topPageLoader
+    Item {
+        id: modalSurface
+        anchors.fill: parent
+        visible: false
+        property Item item: null
+
+        Rectangle {
+            anchors.fill: parent
+            color: "grey"
+            opacity: 0.5
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    modalSurface.item.destroy()
+                    modalSurface.visible = false
+                }
+            }
+        }
     }
 
     Component {
         id: troubleCodesComponent
+        TroubleCodes {
+            width: parent.width / 2
+            anchors.centerIn: parent
+        }
+    }
+
+    Component {
+        id: settingsComponent
         Rectangle {
-            id: troubleCodes
-            width: 1200
-            height: 640
+            width: parent.width / 2
+            anchors.centerIn: parent
+            height: childrenRect.height + 50
             color: "black"
+            radius: 10
+            border.color: "#e2e1e1"
 
-            TroubleCodes {  }
+            NobdyStream {
+                id: connectionState
+                request: VehicleData.ProviderConnectionState
+            }
 
+            Grid {
+                columns: 2
+                anchors.centerIn: parent
+                //width: parent.width
+                //height: parent.height
+                spacing: 20
+                Text {
+                    font.pixelSize: 30
+                    color: "white"
+                    text: "Connection state"
+                }
+
+                Text {
+                    font.pixelSize: 30
+                    color: "white"
+                    text: connectionState.value ? connectionState.value:"unknown"
+                }
+
+                Button {
+                    title.text: "Connect"
+                    onClicked: {
+                        connectionState.issueCommand(VehicleServices.ConnectProvider);
+                    }
+                }
+
+                Button {
+                    title.text: "Disconnect"
+                    width: 150
+                    onClicked: {
+                        connectionState.issueCommand(VehicleServices.DisconnectProvider);
+                    }
+                }
+            }
         }
     }
 }
