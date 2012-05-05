@@ -3,9 +3,8 @@ import nobdy 0.1
 
 Rectangle {
     id: container
-    width: 800
-    height: 480
-
+    width: 1200
+    height: 640
     color: "black"
 
     NobdyStream {
@@ -38,7 +37,7 @@ Rectangle {
 
 
         Rectangle {
-            width: parent.width / 3
+            width: parent.width / 2
             height: childrenRect.height
             anchors.horizontalCenter: parent.horizontalCenter
             visible: troubleCodeStream.value.length
@@ -65,8 +64,7 @@ Rectangle {
                 }
 
                 Repeater {
-                    //model: troubleCodeStream.value
-                    model: ["p1001","0303","34343"]
+                    model: troubleCodeStream.value
 
                     delegate: Text {
                         text: modelData
@@ -77,7 +75,5 @@ Rectangle {
                 }
             }
         }
-
-
     }
 }

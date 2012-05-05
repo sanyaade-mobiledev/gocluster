@@ -32,7 +32,6 @@ Rectangle {
         anchors.centerIn: parent
         height: parent.height
         verticalAlignment: Text.AlignVCenter
-        text: "Refresh"
         font.pixelSize: 20
     }
 
