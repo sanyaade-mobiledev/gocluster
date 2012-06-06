@@ -46,7 +46,7 @@ Rectangle {
 
     NobdyStream {
         id: troubleCodeStream
-        request: VehicleData.DiagnosticTroubleCodes
+        //request: VehicleData.DiagnosticTroubleCodes
     }
 
     Rectangle {
