@@ -15,18 +15,37 @@
 *   You should have received a copy of the GNU General Public License     *
 *   If not, see <http://www.gnu.org/licenses/>.                           *
 ***************************************************************************/
+
 #include <QtGui/QApplication>
 #include <QNetworkProxyFactory>
 
 #include <QDeclarativeView>
+#include <QDeclarativeContext>
+#include <QGst/Ui/GraphicsVideoSurface>
+#include <QGst/Init>
+#include <QGLWidget>
+
+#include "gstvideoplayer.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
 	QApplication app(argc,argv);
+	QGst::init(&argc, &argv);
 
 	QNetworkProxyFactory::setUseSystemConfiguration(true);
 
 	QDeclarativeView viewer;
+
+	viewer.setViewport(new QGLWidget);
+
+	QGst::Ui::GraphicsVideoSurface *surface = new QGst::Ui::GraphicsVideoSurface(&viewer);
+
+	viewer.rootContext()->setContextProperty(QLatin1String("videoSurface1"), surface);
+
+	GstVideoPlayer *player = new GstVideoPlayer(&viewer);
+	player->setVideoSink(surface->videoSink());
+	viewer.rootContext()->setContextProperty(QLatin1String("player"), player);
+
 	viewer.setSource(QUrl::fromLocalFile("main.qml"));
 	viewer.show();
 

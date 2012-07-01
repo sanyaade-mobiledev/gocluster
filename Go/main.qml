@@ -3,6 +3,7 @@ import QtQuick 1.1
 import nobdy 0.1
 import QtMobility.location 1.2
 import Qt.labs.particles 1.0
+import QtGStreamer 0.10
 
 Rectangle {
     id: container
@@ -42,6 +43,10 @@ Rectangle {
     NobdyStream {
         id: longitudeStream
         request: VehicleData.Longitude
+
+        onValueChanged: {
+            player.setText(velocity.value +"kph " + latitudeStream.value + ", " + longitudeStream.value);
+        }
     }
 
     NobdyStream {
@@ -335,6 +340,18 @@ Rectangle {
         }
 
         Button {
+            id: videoScreenButton
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            height: 100
+            title.text: ">"
+            title.font.pixelSize: 40
+            onClicked: {
+                guageScreen.x = -guageScreen.width
+            }
+        }
+
+        Button {
             id: checkEngine
             anchors.right: mainGaugeBackground.left
             y: 100
@@ -347,6 +364,56 @@ Rectangle {
                 modalSurface.visible = true
             }
         }
+    }
+
+    Rectangle {
+        id: cameraScreen
+        width: container.width
+        height: container.height
+        color: "blue"
+        anchors.left: guageScreen.right
+
+        VideoItem {
+            id: video
+            anchors.fill: parent
+            surface: videoSurface1
+        }
+
+        Button {
+            id: gaugeButton
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            height: 100
+            title.text: "<"
+            title.font.pixelSize: 40
+
+            onClicked: guageScreen.x = 0
+        }
+
+        Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            spacing: 20
+            height: 100
+            Button {
+                id: stopButton
+                height: 100
+                title.text: "stop"
+                title.font.pixelSize: 40
+
+                onClicked: player.stop();
+            }
+            Button {
+                id: playButton
+                height: 100
+                title.text: "play"
+                title.font.pixelSize: 40
+
+                onClicked: player.play();
+            }
+        }
+
+
     }
 
     Item {
