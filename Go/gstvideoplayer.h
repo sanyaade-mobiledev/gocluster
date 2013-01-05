@@ -7,9 +7,12 @@
 class GstVideoPlayer : public QObject
 {
     Q_OBJECT
+	Q_PROPERTY(QString videoDevice READ videoDevice WRITE setVideoDevice NOTIFY videoDeviceChanged)
 public:
     explicit GstVideoPlayer(QObject *parent = 0);
     void setVideoSink(const QGst::ElementPtr & sink);
+
+	QString videoDevice();
 
 public slots:
     void play();
@@ -17,6 +20,10 @@ public slots:
     void open();
 
     void setText(QString text);
+	void setVideoDevice(QString dev);
+
+signals:
+	void videoDeviceChanged();
 
 private:
     void openFile(const QString & fileName);
@@ -26,6 +33,7 @@ private:
 
     QGst::PipelinePtr m_pipeline;
     QGst::ElementPtr m_videoSink;
+	QGst::ElementPtr m_videoSource;
     QGst::ElementPtr m_textoverlay;
     QString m_baseDir;
     QString mText;

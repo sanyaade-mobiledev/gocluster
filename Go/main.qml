@@ -1,6 +1,7 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
 import nobdy 0.1
+import amb 0.1
 import QtMobility.location 1.2
 import Qt.labs.particles 1.0
 import QtGStreamer 0.10
@@ -14,18 +15,29 @@ Rectangle {
     property double heading: headingStream.value
     property double rpmValue: rpm.value
 
-    NobdyStream {
+    AutomotivePropertyItem {
         id: rpm
-        request: VehicleData.EngineRPM
+        propertyName: "EngineSpeed"
+        interfaceName: "org.automotive.engineSpeed"
+        objectPath: "/org/automotive/runningstatus/engineSpeed"
+
+        Component.onCompleted: {
+            rpm.connect();
+        }
     }
 
-    NobdyStream {
+    AutomotivePropertyItem {
         id: velocity
-        request: VehicleData.Velocity
-        sourceFilter: "obd2"
+        propertyName: "VehicleSpeed"
+        interfaceName: "org.automotive.vehicleSpeed"
+        objectPath: "/org/automotive/runningstatus/vehicleSpeed"
+
+        Component.onCompleted: {
+            velocity.connect();
+        }
     }
 
-    NobdyStream {
+    /*NobdyStream {
         id: engineCoolant
         request: VehicleData.EngineCoolantTemp
     }
@@ -52,7 +64,7 @@ Rectangle {
     NobdyStream {
         id: troubleCodeStream
         //request: VehicleData.DiagnosticTroubleCodes
-    }
+    }*/
 
     Rectangle {
         id: mapScreen
@@ -490,6 +502,22 @@ Rectangle {
                     width: 150
                     onClicked: {
                         connectionState.issueCommand(VehicleServices.DisconnectProvider);
+                    }
+                }
+
+                Text {
+                    text: "Video device"
+                    font.pixelSize: 30
+                    color: "white"
+                }
+
+                TextEntry {
+                    id: videoDevice
+                    text: player.videoDevice
+                    height: 50
+                    width: 50
+                    onAccepted: {
+                        player.setVideoDevice(videoDevice.text)
                     }
                 }
             }

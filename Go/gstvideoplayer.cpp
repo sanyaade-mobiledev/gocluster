@@ -3,6 +3,7 @@
 
 #include <QtCore/QUrl>
 #include <QtGui/QFileDialog>
+#include <QSettings>
 #include <QGlib/Connect>
 #include <QGlib/Error>
 #include <QGst/ElementFactory>
@@ -23,6 +24,12 @@ void GstVideoPlayer::setVideoSink(const QGst::ElementPtr & sink)
 	stop();
 	createRecordVideoPipeline();
 	//play();
+}
+
+QString GstVideoPlayer::videoDevice()
+{
+	if(m_videoSource)
+		return m_videoSource->property("device").toString();
 }
 
 void GstVideoPlayer::play()
@@ -55,6 +62,14 @@ void GstVideoPlayer::setText(QString text)
 	mText = text;
 	if(m_textoverlay)
 		m_textoverlay->setProperty("text", mText);
+}
+
+void GstVideoPlayer::setVideoDevice(QString dev)
+{
+	if(m_videoSource)
+		m_videoSource->setProperty("device",dev);
+	QSettings settings;
+	settings.setValue("videoDevice", dev);
 }
 
 void GstVideoPlayer::openFile(const QString & fileName)
@@ -114,7 +129,8 @@ void GstVideoPlayer::createRecordVideoPipeline()
 
 	m_pipeline = QGst::Pipeline::create();
 
-	QGst::ElementPtr source = QGst::ElementFactory::make("autovideosrc");
+	//m_videoSource = QGst::ElementFactory::make("autovideosrc");
+	m_videoSource = QGst::ElementFactory::make("v4l2src");
 	QGst::ElementPtr screenQueue = QGst::ElementFactory::make("queue");
 	QGst::ElementPtr videoQueue = QGst::ElementFactory::make("queue");
 	QGst::ElementPtr tee = QGst::ElementFactory::make("tee");
@@ -123,6 +139,12 @@ void GstVideoPlayer::createRecordVideoPipeline()
 	QGst::ElementPtr sink = QGst::ElementFactory::make("filesink");
 	//QGst::ElementPtr screenSink = QGst::ElementFactory::make("autovideosink");
 	QGst::ElementPtr screenSink = m_videoSink;
+
+	QSettings settings;
+
+	m_videoSource->setProperty("device", settings.value("videoDevice","/dev/video0").toString());
+
+	videoDeviceChanged();
 
 	encoder->setProperty("bitrate",512);
 	encoder->setProperty("speed-level", 2);
@@ -134,7 +156,7 @@ void GstVideoPlayer::createRecordVideoPipeline()
 
 	sink->setProperty("location", "out.ogg");
 
-	m_pipeline->add(source, m_textoverlay, tee, screenQueue, screenSink, videoQueue, encoder, mux, sink);
+	m_pipeline->add(m_videoSource, m_textoverlay, tee, screenQueue, screenSink, videoQueue, encoder, mux, sink);
 
 	QGst::CapsPtr caps = QGst::Caps::createSimple("video/x-raw-yuv");
 	//caps->setValue("format", QGst::Fourcc('U','Y','V','Y'));
@@ -143,7 +165,7 @@ void GstVideoPlayer::createRecordVideoPipeline()
 	caps->setValue("bpp", 24);
 	caps->setValue("framerate", QGst::Fraction(30,1));
 
-	source->link(m_textoverlay, caps);
+	m_videoSource->link(m_textoverlay, caps);
 	m_textoverlay->link(tee);
 
 	tee->link(screenQueue);

@@ -7,7 +7,8 @@ PKGCONFIG += QtGStreamer-0.10 QtGStreamerUi-0.10 QtGLib-2.0 QtGStreamerUtils-0.1
 SOURCES += main.cpp \
     gstvideoplayer.cpp
 
-OTHER_FILES += assets/* *.qml
+OTHER_FILES += assets/* *.qml \
+    TextEntry.qml
 
 HEADERS += \
     gstvideoplayer.h
