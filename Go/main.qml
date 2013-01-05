@@ -35,6 +35,9 @@ Rectangle {
         Component.onCompleted: {
             velocity.connect();
         }
+        onValueChanged: {
+            player.setText(velocity.value +"kph ");
+        }
     }
 
     /*NobdyStream {
