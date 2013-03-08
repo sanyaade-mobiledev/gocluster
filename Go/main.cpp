@@ -36,7 +36,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 
 	QDeclarativeView viewer;
 
-	viewer.setViewport(new QGLWidget);
+	if(app.arguments().contains("opengl"))
+		viewer.setViewport(new QGLWidget);
 
 	QGst::Ui::GraphicsVideoSurface *surface = new QGst::Ui::GraphicsVideoSurface(&viewer);
 
