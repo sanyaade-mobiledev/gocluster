@@ -47,7 +47,14 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 	player->setVideoSink(surface->videoSink());
 	viewer.rootContext()->setContextProperty(QLatin1String("player"), player);
 
-	viewer.setSource(QUrl::fromLocalFile("main.qml"));
+	if(app.arguments().contains("light"))
+	{
+		viewer.setSource(QUrl::fromLocalFile("golight.qml"));
+	}
+	else
+	{
+		viewer.setSource(QUrl::fromLocalFile("main.qml"));
+	}
 	viewer.show();
 
 	return app.exec();

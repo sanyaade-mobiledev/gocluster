@@ -1,6 +1,5 @@
 // import QtQuick 1.0 // to target S60 5th Edition or Maemo 5
 import QtQuick 1.1
-import nobdy 0.1
 import amb 0.1
 import QtMobility.location 1.2
 import Qt.labs.particles 1.0
@@ -58,7 +57,7 @@ Rectangle {
     NobdyStream {
         id: longitudeStream
         request: VehicleData.Longitude
-
+t?"                                                                              kl
         onValueChanged: {
             player.setText(velocity.value +"kph " + latitudeStream.value + ", " + longitudeStream.value);
         }
@@ -207,7 +206,14 @@ Rectangle {
             }
         }
 
-        Image {
+        Guage {
+            anchors.centerIn: parent
+            rpm: rpm
+            engineCoolant: engineCoolant
+            velocity: velocity
+        }
+
+        /*Image {
             id: mainGaugeBackground
             source: "assets/dial-main-bg.png"
 
@@ -311,7 +317,8 @@ Rectangle {
                 anchors.centerIn: parent
                 color: "white"
             }
-        }
+        }*/
+
 
         Button {
             id: configureButton
@@ -470,10 +477,10 @@ Rectangle {
             radius: 10
             border.color: "#e2e1e1"
 
-            NobdyStream {
+            /*NobdyStream {
                 id: connectionState
                 request: VehicleData.ProviderConnectionState
-            }
+            }*/
 
             Grid {
                 columns: 2

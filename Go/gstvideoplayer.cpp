@@ -22,7 +22,8 @@ void GstVideoPlayer::setVideoSink(const QGst::ElementPtr & sink)
 {
 	m_videoSink = sink;
 	stop();
-	createRecordVideoPipeline();
+	// createRecordVideoPipeline();
+	createVideoPipelineDisplay();
 	//play();
 }
 
