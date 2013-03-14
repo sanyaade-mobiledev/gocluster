@@ -24,8 +24,10 @@
 #include <QGst/Ui/GraphicsVideoSurface>
 #include <QGst/Init>
 #include <QGLWidget>
+#include <QtDeclarative>
 
 #include "gstvideoplayer.h"
+#include "pngitem.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -47,9 +49,15 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 	player->setVideoSink(surface->videoSink());
 	viewer.rootContext()->setContextProperty(QLatin1String("player"), player);
 
+	qmlRegisterType<PngItem>("go",0,1,"VideoRecordItem");
+
 	if(app.arguments().contains("light"))
 	{
 		viewer.setSource(QUrl::fromLocalFile("golight.qml"));
+	}
+	else if(app.arguments().contains("record"))
+	{
+		viewer.setSource(QUrl::fromLocalFile("gorecord.qml"));
 	}
 	else
 	{

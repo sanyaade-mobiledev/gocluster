@@ -23,7 +23,8 @@ void GstVideoPlayer::setVideoSink(const QGst::ElementPtr & sink)
 	m_videoSink = sink;
 	stop();
 	// createRecordVideoPipeline();
-	createVideoPipelineDisplay();
+	//createVideoPipelineDisplay();
+	//createVideoMixerPiplineDisplay();
 	//play();
 }
 
@@ -80,6 +81,21 @@ void GstVideoPlayer::openFile(const QString & fileName)
 	stop();
 
 	play();
+}
+
+void GstVideoPlayer::createVideoFilePiplineDisplay()
+{
+	if(m_pipeline)
+		delete m_pipeline;
+	m_pipeline = QGst::ElementFactory::make("playbin2").dynamicCast<QGst::Pipeline>();
+
+	m_pipeline->setProperty("uri",m_baseDir);
+	m_pipeline->setProperty("video_sink", m_videoSink);
+
+	QGst::BusPtr bus = m_pipeline->bus();
+	bus->addSignalWatch();
+	QGlib::connect(bus, "message", this, &GstVideoPlayer::onBusMessage);
+
 }
 
 void GstVideoPlayer::createVideoPipelineDisplay()
@@ -155,7 +171,7 @@ void GstVideoPlayer::createRecordVideoPipeline()
 	m_textoverlay->setProperty("text", mText);
 	m_textoverlay->setProperty("font-desc", "Sans 20");
 
-	sink->setProperty("location", "out.ogg");
+	sink->setProperty("location", m_baseDir);
 
 	m_pipeline->add(m_videoSource, m_textoverlay, tee, screenQueue, screenSink, videoQueue, encoder, mux, sink);
 

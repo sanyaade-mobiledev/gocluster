@@ -17,8 +17,8 @@ Rectangle {
     AutomotivePropertyItem {
         id: rpm
         propertyName: "EngineSpeed"
-        interfaceName: "org.automotive.engineSpeed"
-        objectPath: "/org/automotive/runningstatus/engineSpeed"
+        interfaceName: "org.automotive.EngineSpeed"
+        objectPath: "/org/automotive/runningstatus/EngineSpeed"
 
         Component.onCompleted: {
             rpm.connect();
@@ -28,8 +28,8 @@ Rectangle {
     AutomotivePropertyItem {
         id: velocity
         propertyName: "VehicleSpeed"
-        interfaceName: "org.automotive.vehicleSpeed"
-        objectPath: "/org/automotive/runningstatus/vehicleSpeed"
+        interfaceName: "org.automotive.VehicleSpeed"
+        objectPath: "/org/automotive/runningstatus/VehicleSpeed"
 
         Component.onCompleted: {
             velocity.connect();
