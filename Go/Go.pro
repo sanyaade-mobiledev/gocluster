@@ -12,6 +12,7 @@ OTHER_FILES += assets/* *.qml \
     TextEntry.qml \
     Guage.qml \
     golight.qml \
+	gorecord.qml \
     Map.qml
 
 HEADERS += \

@@ -7,6 +7,12 @@ Item {
     width: 480
     height: 272
 
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            recordButton.visible = !recordButton.visible
+        }
+    }
 
     VideoItem {
         id: video
@@ -14,38 +20,8 @@ Item {
         surface: videoSurface1
 
         Component.onCompleted: {
-            player.videoFile = "file:///home/kev/src/Go/Go/out.ogg"
-            player.createVideoFilePiplineDisplay();
-            player.play();
+            player.videoFile = "out.ogg"
         }
-    }
-
-    AutomotivePropertyItem {
-        id: dbfileItem
-        propertyName: "DatabaseFile"
-        interfaceName: "org.automotive.DatabaseFile"
-        objectPath: "/org/automotive/custom/DatabaseFile"
-
-        Component.onCompleted: {
-            dbfileItem.connect();
-            value = "mylog.db";
-            dblogging.connect();
-        }
-
-    }
-
-    AutomotivePropertyItem {
-        id: dbplayback
-        propertyName: "DatabasePlayback"
-        interfaceName: "org.automotive.DatabasePlayback"
-        objectPath: "/org/automotive/custom/DatabasePlayback"
-
-        Component.onCompleted: {
-            dbplayback.connect();
-            value = true
-
-        }
-
     }
 
     AutomotivePropertyItem {
@@ -69,9 +45,8 @@ Item {
         Component.onCompleted: {
             velocityItem.connect();
         }
-
         onValueChanged: {
-            console.log("velocity changed: "+value)
+            player.setText(velocityItem.value +"kph ");
         }
     }
 
@@ -83,6 +58,43 @@ Item {
 
         Component.onCompleted: {
             engineCoolantItem.connect();
+        }
+
+    }
+
+    AutomotivePropertyItem {
+        id: dblogging
+        propertyName: "DatabaseLogging"
+        interfaceName: "org.automotive.DatabaseLogging"
+        objectPath: "/org/automotive/custom/DatabaseLogging"
+
+        Component.onCompleted: {
+            dblogging.connect();
+
+        }
+
+        onValueChanged: {
+            if(value)
+            {
+                player.createRecordVideoPipeline()
+                player.play();
+            }
+            else {
+                player.stop();
+            }
+        }
+    }
+
+    AutomotivePropertyItem {
+        id: dbfileItem
+        propertyName: "DatabaseFile"
+        interfaceName: "org.automotive.DatabaseFile"
+        objectPath: "/org/automotive/custom/DatabaseFile"
+
+        Component.onCompleted: {
+            dbfileItem.connect();
+            value = "mylog.db";
+            dblogging.connect();
         }
 
     }
@@ -106,6 +118,19 @@ Item {
         latitude: 45.54013
         longitude: -122.95711
 
+    }
+
+    Button {
+        id: recordButton
+        visible: false
+        anchors.centerIn: parent
+        width: 100
+        height: 75
+        title.text: dblogging.value ? "Stop":"Record"
+
+        onClicked: {
+            dblogging.value = !dblogging.value
+        }
     }
 
 

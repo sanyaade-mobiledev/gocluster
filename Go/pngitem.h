@@ -3,6 +3,8 @@
 
 #include <QDeclarativeItem>
 #include <QImage>
+#include <QProcess>
+#include <QTimer>
 
 class PngItem : public QDeclarativeItem
 {
@@ -15,9 +17,18 @@ public:
 signals:
 	
 public slots:
+	void startRecording();
+	void stopRecording();
+
+private slots:
+	void takeSnapshot();
+	void widthChangedSlot();
+	void heightChangedSlot();
 
 private:
-	QImage image;
+	QImage *image;
+	QProcess ffmpeg;
+	QTimer recordTimer;
 	
 };
 
